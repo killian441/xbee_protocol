@@ -1,3 +1,4 @@
+import binascii
 from nio.properties import Property
 from nio.properties.version import VersionProperty
 from .xbee_base import XBeeBase
@@ -20,11 +21,17 @@ class XBeeTX(XBeeBase):
 
     version = VersionProperty(version='0.2.1')
     data = Property(title="Data", default="{{ $.to_dict() }}")
-    # todo: make dest_addr a block property
+    dest_addr = Property(title='Destination Address \
+                         (2 or 8 bytes hex, ex: "00 05")',
+                         default='',
+                         allow_none=True)
 
     def process_signals(self, signals):
         for signal in signals:
             data_encoded = "{}".format(self.data(signal)).encode()
+            dest_addr = \
+                binascii.unhexlify(self.dest_addr(signal).replace(" ", "")) \
+                if self.dest_addr(signal) else None
             self.logger.debug('Sending data: {}'.format(data_encoded))
             # tx: 0x01 "Tx (Transmit) Request: 16-bit address"
             # tx: 0x10 "Tx (Transmit) Request: 64-bit address", DigiMesh
@@ -43,7 +50,8 @@ class XBeeTX(XBeeBase):
                 self._xbee.send('tx',
                                 id=b'\x10',
                                 frame_id=b'\x01',
-                                dest_addr=b'\x00\x00\x00\x00\x00\x00\xFF\xFF',
+                                dest_addr=dest_addr or \
+                                    b'\x00\x00\x00\x00\x00\x00\xFF\xFF',
                                 reserved=b'\xFF\xFE',
                                 broadcast_radius=b'\x00',
                                 options=b'\x00',
@@ -51,5 +59,5 @@ class XBeeTX(XBeeBase):
             else:
                 self._xbee.send('tx',
                                 frame_id=b'\x01',
-                                dest_addr=b'\xFF\xFF',
+                                dest_addr=dest_addr or b'\xFF\xFF',
                                 data=data_encoded)
