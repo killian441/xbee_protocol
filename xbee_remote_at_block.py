@@ -1,6 +1,7 @@
 import binascii
 from nio.properties import Property
 from nio.properties.version import VersionProperty
+from nio.signal.base import Signal
 from .xbee_base import XBeeBase
 
 
@@ -24,6 +25,9 @@ class XBeeRemoteAT(XBeeBase):
                          (2 or 8 bytes hex, ex: "00 05")',
                          default='',
                          allow_none=True)
+    frame_id = Property(title='Frame options', 
+                        default="{{ $frame_id }}", 
+                        hidden=True)
 
     def process_signals(self, signals):
         for signal in signals:
@@ -35,11 +39,16 @@ class XBeeRemoteAT(XBeeBase):
                     binascii.unhexlify(
                         self.dest_addr(signal).replace(" ", "")) \
                         if self.dest_addr(signal) else None
-                self._remote_at(command, parameter, dest_addr)
+                try:
+                    frame_id = binascii.unhexlify(self.frame_id(signal))
+                    self.logger.debug("Frame ID = {}".format(frame_id))
+                except:
+                    frame_id = None
+                self._remote_at(command, parameter, dest_addr, frame_id)
             except:
                 self.logger.exception("Failed to execute remote at command")
 
-    def _remote_at(self, command, parameter, dest_addr):
+    def _remote_at(self, command, parameter, dest_addr, frame_id):
         self.logger.debug(
             "Executing Remote AT command: {}, with parameter: {}".format(
                 command, parameter))
@@ -54,21 +63,9 @@ class XBeeRemoteAT(XBeeBase):
         # frame_id is an arbitrary value, 1 hex byte, used to associate sent 
         # packets with their responses. If set to 0 no response will be sent.
         # Could be a block property.
-        if self.digimesh():
-            # pass all arguments to work around bug in
-            # python-xbee/xbee/digimesh.py where default values are not bytes
-            self._xbee.send('remote_at',
-                            id=b'\x17',
-                            frame_id=b'\x01',
-                            dest_addr_long=dest_addr or \
-                                           b'\x00\x00\x00\x00\x00\x00\xFF\xFF',
-                            reserved=b'\xFF\xFE',
-                            options=b'\x02',
-                            command=command,
-                            parameter=parameter)
-        else:
-            self._xbee.send('remote_at',
-                            frame_id=b'\x01',
-                            dest_addr=dest_addr or b'\xFF\xFF',
-                            command=command,
-                            parameter=parameter)
+        self.notify_signals([Signal( { "frame" :
+                self._xbee._build_command('remote_at',
+                frame_id=frame_id or b'\x01',
+                dest_addr=dest_addr or b'\xFF\xFF',
+                command=command,
+                parameter=parameter) } )])

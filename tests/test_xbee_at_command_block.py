@@ -20,9 +20,6 @@ class TestXBeeATCommand(NIOBlockTestCase):
         super().setUp()
         self.signals = defaultdict(list)
 
-    def signals_notified(self, signals, output_id):
-        self.signals[output_id].extend(signals)
-
     @patch('xbee.XBee')
     @patch('serial.Serial')
     def test_defaults(self, mock_serial, mock_xbee):
@@ -30,12 +27,31 @@ class TestXBeeATCommand(NIOBlockTestCase):
         self.configure_block(blk, {})
         blk.start()
         blk.process_signals([Signal({'iama': 'signal'})])
-        blk._xbee.send.assert_called_once_with(
+        blk._xbee._build_command.assert_called_once_with(
             'at',
             frame_id=b'\x01',
             command=b'ID',
             parameter=b'')
-        self.assertFalse(len(self.last_notified[DEFAULT_TERMINAL]))
+        self.assertTrue(len(self.last_notified[DEFAULT_TERMINAL]))
+        blk.stop()
+
+    @patch('xbee.XBee')
+    @patch('serial.Serial')
+    def test_assign_expression(self, mock_serial, mock_xbee):
+        blk = XBeeATCommand()
+        self.configure_block(blk, {
+            "command": "D0",
+            "parameter": "05",
+            "frame_id": "00"
+        })
+        blk.start()
+        blk.process_signals([Signal({'iama': 'signal'})])
+        blk._xbee._build_command.assert_called_once_with(
+            'at',
+            frame_id=b'\x00',
+            command=b'D0',
+            parameter=b'\x05')
+        self.assertTrue(len(self.last_notified[DEFAULT_TERMINAL]))
         blk.stop()
 
     @patch('xbee.XBee')
@@ -43,17 +59,22 @@ class TestXBeeATCommand(NIOBlockTestCase):
     def test_expression_props(self, mock_serial, mock_xbee):
         blk = XBeeATCommand()
         self.configure_block(blk, {
-            "command": "D0",
-            "parameter": "05"
+            "command": "{{ $c }}",
+            "parameter": "{{ $p }}",
+            "frame_id": "{{ $f }}"
         })
         blk.start()
-        blk.process_signals([Signal({'iama': 'signal'})])
-        blk._xbee.send.assert_called_once_with(
+        blk.process_signals([Signal({
+            'c': 'D0',
+            'p': '05',
+            'f': '00'
+            })])
+        blk._xbee._build_command.assert_called_once_with(
             'at',
-            frame_id=b'\x01',
+            frame_id=b'\x00',
             command=b'D0',
             parameter=b'\x05')
-        self.assertFalse(len(self.last_notified[DEFAULT_TERMINAL]))
+        self.assertTrue(len(self.last_notified[DEFAULT_TERMINAL]))
         blk.stop()
 
     @patch('xbee.XBee')
@@ -66,9 +87,9 @@ class TestXBeeATCommand(NIOBlockTestCase):
         blk.logger = MagicMock()
         blk.start()
         blk.process_signals([Signal({'iama': 'signal'})])
-        # send is never called because of the command not being ascii encodable
+        # build_command is never called because of the command not being ascii encodable
         # It needs to be a two ascii characters
-        self.assertFalse(blk._xbee.send.called)
+        self.assertFalse(blk._xbee._build_command.called)
         # expected behavior is to log an error
         blk.logger.exception.assert_called_once_with('Failed to execute at command')
         blk.stop()
