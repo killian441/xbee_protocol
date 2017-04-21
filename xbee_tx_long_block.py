@@ -50,8 +50,11 @@ class XBeeTXLong(XBeeBase):
             # sent packets with their responses. If set to 0 no response will
             # be sent. Could be a block property.
 
+            packet = self._xbee._build_command('tx_long_addr',
+                        frame_id=frame_id or b'\x01',
+                        dest_addr=dest_addr or 
+                            b'\x00\x00\x00\x00\x00\x00\xFF\xFF',
+                        data=data_encoded)
             self.notify_signals([Signal( { "frame" :
-                    self._xbee._build_command('tx_long_addr',
-                    frame_id=frame_id or b'\x01',
-                    dest_addr=dest_addr or b'\x00\x00\x00\x00\x00\x00\xFF\xFF',
-                    data=data_encoded) } )])
+                        self._API_frame_packer(packet)
+                        } )])

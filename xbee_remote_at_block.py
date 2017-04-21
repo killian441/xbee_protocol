@@ -63,9 +63,19 @@ class XBeeRemoteAT(XBeeBase):
         # frame_id is an arbitrary value, 1 hex byte, used to associate sent 
         # packets with their responses. If set to 0 no response will be sent.
         # Could be a block property.
+        if dest_addr is not None and len(dest_addr) == 8:
+            packet = self._xbee._build_command('remote_at',
+                    frame_id=frame_id or b'\x01',
+                    dest_addr_long=dest_addr or 
+                        b'\x00\x00\x00\x00\x00\x00\xFF\xFF',
+                    command=command,
+                    parameter=parameter)
+        else:
+            packet = self._xbee._build_command('remote_at',
+                    frame_id=frame_id or b'\x01',
+                    dest_addr=dest_addr or b'\xFF\xFF',
+                    command=command,
+                    parameter=parameter)
         self.notify_signals([Signal( { "frame" :
-                self._xbee._build_command('remote_at',
-                frame_id=frame_id or b'\x01',
-                dest_addr=dest_addr or b'\xFF\xFF',
-                command=command,
-                parameter=parameter) } )])
+                    self._API_frame_packer(packet)
+                    } )])

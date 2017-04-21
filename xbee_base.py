@@ -60,3 +60,6 @@ class XBeeBase(Block):
         except:
             self.logger.exception('An failure occurred')
 
+    def _API_frame_packer(self, data):
+        return xbee.frame.APIFrame(data, self.escaped()).output()
+

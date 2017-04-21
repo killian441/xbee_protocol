@@ -54,8 +54,10 @@ class XBeeQueuedAT(XBeeBase):
         # frame_id is an arbitrary value, 1 hex byte, used to associate sent
         # packets with their responses. If set to 0 no response will be sent.
         # Could be a block property.
+        packet = self._xbee._build_command('queued_at',
+                    frame_id=frame_id or b'\x01',
+                    command=command,
+                    parameter=parameter)
         self.notify_signals([Signal( { "frame" :
-                self._xbee._build_command('queued_at',
-                frame_id=frame_id or b'\x01',
-                command=command,
-                parameter=parameter) } )])
+                    self._API_frame_packer(packet)
+                    } )])

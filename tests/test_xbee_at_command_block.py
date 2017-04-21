@@ -93,3 +93,31 @@ class TestXBeeATCommand(NIOBlockTestCase):
         # expected behavior is to log an error
         blk.logger.exception.assert_called_once_with('Failed to execute at command')
         blk.stop()
+
+    def test_at_notify_signal(self):
+        blk = XBeeATCommand()
+        self.configure_block(blk, {
+            "escaped":False,
+            "command": "{{ $iama }}",
+            "parameter": "{{ $p }}",
+            "frame_id": "4d"
+        })
+        blk.start()
+        blk.process_signals([Signal({'iama': 'ID', 'p': '117E'})])
+        self.assert_num_signals_notified(1, blk)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
+            {'frame':b'\x7E\x00\x06\x08\x4D\x49\x44\x11\x7E\x8E'})
+
+    def test_at_escaped_notify_signal(self):
+        blk = XBeeATCommand()
+        self.configure_block(blk, {
+            "escaped":True,
+            "command": "{{ $iama }}",
+            "parameter": "{{ $p }}",
+            "frame_id": "4d"
+        })
+        blk.start()
+        blk.process_signals([Signal({'iama': 'ID', 'p': '11 7E'})])
+        self.assert_num_signals_notified(1, blk)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
+            {'frame':b'\x7E\x00\x06\x08\x4D\x49\x44\x7D\x31\x7D\x5E\x8E'})

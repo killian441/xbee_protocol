@@ -77,9 +77,29 @@ class TestXBeeTX(NIOBlockTestCase):
     def test_notify_signal(self):
         blk = XBeeTX()
         self.configure_block(blk, {
-            "dest_addr": "00 42",
+            "dest_addr": "117E",
+            "escaped":False,
             "data": "{{ $iama }}",
+            "frame_id": "7d"
         })
         blk.start()
         blk.process_signals([Signal({'iama': 'signal'})])
         self.assert_num_signals_notified(1, blk)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
+            {'frame':b'\x7E\x00\x0B\x01\x7D\x11\x7E\x00\x73\x69\x67\x6E\x61'
+                    b'\x6C\x74'})
+
+    def test_escaped_notify_signal(self):
+        blk = XBeeTX()
+        self.configure_block(blk, {
+            "dest_addr": "11 7E",
+            "escaped":True,
+            "data": "{{ $iama }}",
+            "frame_id": "7D"
+        })
+        blk.start()
+        blk.process_signals([Signal({'iama': 'signal'})])
+        self.assert_num_signals_notified(1, blk)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
+            {'frame':b'\x7E\x00\x0B\x01\x7D\x5D\x7D\x31\x7D\x5E\x00\x73\x69'
+                    b'\x67\x6E\x61\x6C\x74'})

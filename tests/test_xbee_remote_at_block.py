@@ -110,3 +110,35 @@ class TestXBeeRemoteAT(NIOBlockTestCase):
         # expected behavior is to log error
         blk.logger.exception.assert_called_once_with('Failed to execute remote at command')
         blk.stop()
+
+    def test_notify_signal(self):
+        blk = XBeeRemoteAT()
+        self.configure_block(blk, {
+            "dest_addr": "00 42",
+            "escaped":False,
+            "command": "{{ $iama }}",
+            "parameter": "{{ $p }}",
+            "frame_id": "4d"
+        })
+        blk.start()
+        blk.process_signals([Signal({'iama': 'ID', 'p': '117E'})])
+        self.assert_num_signals_notified(1, blk)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
+            {'frame':b'\x7E\x00\x11\x17\x4D\x00\x00\x00\x00\x00\x00\x00\x00'
+                    b'\x00\x42\x02\x49\x44\x11\x7E\x3B'})
+
+    def test_escaped_notify_signal(self):
+        blk = XBeeRemoteAT()
+        self.configure_block(blk, {
+            "dest_addr": "12 34 56 78 90 AB cd Ef",
+            "escaped":True,
+            "command": "{{ $iama }}",
+            "parameter": "{{ $p }}",
+            "frame_id": "4d"
+        })
+        blk.start()
+        blk.process_signals([Signal({'iama': 'ID', 'p': '11 7E'})])
+        self.assert_num_signals_notified(1, blk)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
+            {'frame':b'\x7E\x00\x7D\x31\x17\x4D\x12\x34\x56\x78\x90\xAB\xCD'
+                    b'\xEF\xFF\xFE\x02\x49\x44\x7D\x31\x7D\x5E\x75'})
