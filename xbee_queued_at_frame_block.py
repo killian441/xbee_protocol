@@ -2,10 +2,10 @@ import binascii
 from nio.properties import Property
 from nio.properties.version import VersionProperty
 from nio.signal.base import Signal
-from .xbee_base import XBeeBase
+from .xbee_frame_base import XBeeFrameBase
 
 
-class XBeeATCommand(XBeeBase):
+class XBeeQueuedATFrame(XBeeFrameBase):
 
     """ Execute AT commands
     Parameters:
@@ -18,7 +18,7 @@ class XBeeATCommand(XBeeBase):
     command = Property(title='AT Command (ascii)',
                        default='ID')
     parameter = Property(title='Command Parameter (hex, ex: "05")',
-						 default='')
+                         default='')
     frame_id = Property(title='Frame options', 
                         default="{{ $frame_id }}", 
                         hidden=True)
@@ -35,7 +35,7 @@ class XBeeATCommand(XBeeBase):
                     frame_id = None
                 self._at(command, parameter, frame_id)
             except:
-                self.logger.exception("Failed to execute at command")
+                self.logger.exception("Failed to execute queued at command")
 
     def _at(self, command, parameter, frame_id):
         command = command.encode('ascii')
@@ -44,7 +44,7 @@ class XBeeATCommand(XBeeBase):
             "Executing AT command: {}, with parameter: {}".format(
                 command, parameter)
         )
-        # at: 0x08 "AT Command"
+        # at: 0x09 "Queued AT Command"
         # frame_id: 0x01
         # data: RF data bytes to be transmitted
         # command: The command to execute, ex. 'D0', WR'
@@ -54,7 +54,7 @@ class XBeeATCommand(XBeeBase):
         # frame_id is an arbitrary value, 1 hex byte, used to associate sent
         # packets with their responses. If set to 0 no response will be sent.
         # Could be a block property.
-        packet = self._xbee._build_command('at',
+        packet = self._xbee._build_command('queued_at',
                     frame_id=frame_id or b'\x01',
                     command=command,
                     parameter=parameter)

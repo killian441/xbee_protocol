@@ -8,7 +8,7 @@ from nio.util.discovery import not_discoverable
 
 
 @not_discoverable
-class XBeeBase(Block):
+class XBeeFrameBase(Block):
 
     """ Read XBee over serial.
 
@@ -63,3 +63,9 @@ class XBeeBase(Block):
     def _API_frame_packer(self, data):
         return xbee.frame.APIFrame(data, self.escaped()).output()
 
+    def _API_frame_unpacker(self, data):
+        frame = xbee.frame.APIFrame(escaped=self.escaped())
+        for byte in data:
+            frame.fill(bytes([byte]))
+        frame.parse()
+        return self._xbee._split_response(frame.data)

@@ -8,18 +8,18 @@ from nio.testing.block_test_case import NIOBlockTestCase
 xbee_available = True
 try:
     import xbee
-    from ..xbee_digimesh_tx_block import XBeeDigiMeshTX
+    from ..xbee_digimesh_tx_frame_block import XBeeDigiMeshTXFrame
 except:
     xbee_available = False
 
 
 @skipUnless(xbee_available, 'xbee is not available!!')
-class TestXBeeDigiMeshTX(NIOBlockTestCase):
+class TestXBeeDigiMeshTXFrame(NIOBlockTestCase):
 
     @patch('xbee.DigiMesh')
     @patch('serial.Serial')
     def test_XBeeDigiMesh_long_defaults(self, mock_serial, mock_xbee):
-        blk = XBeeDigiMeshTX()
+        blk = XBeeDigiMeshTXFrame()
         self.configure_block(blk, {})
         blk.start()
         blk.process_signals([Signal({'iama': 'signal'})])
@@ -38,7 +38,7 @@ class TestXBeeDigiMeshTX(NIOBlockTestCase):
     @patch('xbee.DigiMesh')
     @patch('serial.Serial')
     def test_xbee_long_build_multiple_commands(self, mock_serial, mock_xbee):
-        blk = XBeeDigiMeshTX()
+        blk = XBeeDigiMeshTXFrame()
         self.configure_block(blk, {})
         blk.start()
         blk.process_signals([Signal(), Signal()])
@@ -49,7 +49,7 @@ class TestXBeeDigiMeshTX(NIOBlockTestCase):
     @patch('xbee.DigiMesh')
     @patch('serial.Serial')
     def test_tx_long_expression_props(self, mock_serial, mock_xbee):
-        blk = XBeeDigiMeshTX()
+        blk = XBeeDigiMeshTXFrame()
         self.configure_block(blk, {
             "dest_addr": "AB Cd ef 12 99 35 00 42",
             "data": "{{ $iama }}",
@@ -69,7 +69,7 @@ class TestXBeeDigiMeshTX(NIOBlockTestCase):
     @patch('xbee.DigiMesh')
     @patch('serial.Serial')
     def test_tx_long_hidden_expression_props(self, mock_serial, mock_xbee):
-        blk = XBeeDigiMeshTX()
+        blk = XBeeDigiMeshTXFrame()
         self.configure_block(blk, {
             "dest_addr": "{{ $d }}",
             "data": "{{ $iama }}",
@@ -89,7 +89,7 @@ class TestXBeeDigiMeshTX(NIOBlockTestCase):
             options=b'\x00')
 
     def test_digimesh_tx_notify_signal(self):
-        blk = XBeeDigiMeshTX()
+        blk = XBeeDigiMeshTXFrame()
         self.configure_block(blk, {
             "dest_addr": "0013A200400a0127",
             "escaped":False,
@@ -103,7 +103,7 @@ class TestXBeeDigiMeshTX(NIOBlockTestCase):
             b'\xFF\xFE\x00\x00\x54\x78\x44\x61\x74\x61\x30\x41\x13'})
 
     def test_digimesh_tx_escaped_notify_signal(self):
-        blk = XBeeDigiMeshTX()
+        blk = XBeeDigiMeshTXFrame()
         self.configure_block(blk, {
             "dest_addr": "0013A200400a0127",
             "escaped":True,

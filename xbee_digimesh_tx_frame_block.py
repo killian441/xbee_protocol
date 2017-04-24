@@ -3,10 +3,10 @@ import xbee
 from nio.properties import Property
 from nio.properties.version import VersionProperty
 from nio.signal.base import Signal
-from .xbee_base import XBeeBase
+from .xbee_frame_base import XBeeFrameBase
 
 
-class XBeeDigiMeshTX(XBeeBase):
+class XBeeDigiMeshTXFrame(XBeeFrameBase):
 
     """Execute TX_LONG_ADDR Command.
 
@@ -20,7 +20,7 @@ class XBeeDigiMeshTX(XBeeBase):
             Default value when left blank is "FF FF" which sends a broadcast.
     """
 
-    version = VersionProperty(version='0.0.1')
+    version = VersionProperty(version='0.1.0')
     data = Property(title="Data", default="{{ $.to_dict() }}")
     dest_addr = Property(title='Destination Address \
                          (8 bytes hex, ex: "01 23 45 67 89 AA 00 05")',
