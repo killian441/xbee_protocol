@@ -38,11 +38,11 @@ class TestXBeeParseFrame(NIOBlockTestCase):
                         b'\x01\x73\x69\x67\x6E\x61\x6C\x70'})])
         self.assert_num_signals_notified(1, blk)
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
-            {'frame': {'id': 'rx',
-                        'options': b'\x01',
-                        'rf_data': b'signal',
-                        'rssi': b'\x00',
-                        'source_addr': b'\x11\x7E'}})
+            {'id': 'rx',
+             'options': b'\x01',
+             'rf_data': b'signal',
+             'rssi': b'\x00',
+             'source_addr': b'\x11\x7E'})
 
     def test_escaped_notify_signal(self):
         blk = XBeeParseFrame()
@@ -55,11 +55,11 @@ class TestXBeeParseFrame(NIOBlockTestCase):
                         b"\x5E\x00\x01\x73\x69\x67\x6E\x61\x6C\x70"})])
         self.assert_num_signals_notified(1, blk)
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
-            {'frame': {'id': 'rx',
-                        'options': b'\x01',
-                        'rf_data': b'signal',
-                        'rssi': b'\x00',
-                        'source_addr': b'\x11\x7E'}})
+            {'id': 'rx',
+             'options': b'\x01',
+             'rf_data': b'signal',
+             'rssi': b'\x00',
+             'source_addr': b'\x11\x7E'})
 
     def test_complicated_signal(self):
         blk = XBeeParseFrame()
@@ -70,11 +70,14 @@ class TestXBeeParseFrame(NIOBlockTestCase):
         })
         blk.start()
         blk.process_signals([Signal({'host': ('10.10.2.125', 2101),
-                    'data': b"~\x003\x90\x00}3\xa2\x00A\x05\xf0\x8b\xff\xfe\xc2{'temperature': 24.2, 'humidity': 23.3}]\xff"})])
+                    'data': b"~\x003\x90\x00}3\xa2\x00A\x05\xf0\x8b"
+                            b"\xff\xfe\xc2"
+                            b"{'temperature': 24.2, 'humidity': 23.3}]"
+                            b"\xff"})])
         self.assert_num_signals_notified(1, blk)
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
-            {'frame': {'id': 'rx',
-                        'options': b'\xC2',
-                        'data': b"{'temperature': 24.2, 'humidity': 23.3}",
-                        'reserved': b'\xFF\xFE',
-                        'source_addr': b'\x00\x13\xA2\x00\x41\x05\xF0\x8B'}})
+            {'id': 'rx',
+             'options': b'\xC2',
+             'data': b"{'temperature': 24.2, 'humidity': 23.3}",
+             'reserved': b'\xFF\xFE',
+             'source_addr': b'\x00\x13\xA2\x00\x41\x05\xF0\x8B'})

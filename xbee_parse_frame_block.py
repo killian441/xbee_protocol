@@ -28,6 +28,6 @@ class XBeeParseFrame(XBeeFrameBase):
                 data_encoded = "{}".format(self.data(signal)).encode()
             try:
                 frame = self._API_frame_unpacker(data_encoded)
-                self.notify_signals([Signal( { "frame" : frame } )])
+                self.notify_signals([Signal( frame )])
             except:
                 self.logger.exception("Failed to parse frame")
