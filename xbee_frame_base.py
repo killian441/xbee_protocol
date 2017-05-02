@@ -21,6 +21,8 @@ class XBeeFrameBase(Block):
 
     escaped = BoolProperty(title='Escaped characters? (API mode 2)',
                            default=True)
+    digimesh = BoolProperty(title='DigiMesh',
+                            default=False)
 
     def __init__(self):
         super().__init__()
@@ -30,8 +32,10 @@ class XBeeFrameBase(Block):
 
     def configure(self, context):
         super().configure(context)
+        if self.digimesh():
+            self._protocol = xbee.DigiMesh
         self._connect()
-
+        
     def process_signals(self, signals):
         for signal in signals:
             pass

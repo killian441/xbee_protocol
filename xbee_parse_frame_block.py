@@ -18,7 +18,7 @@ class XBeeParseFrame(XBeeFrameBase):
     """
 
     version = VersionProperty(version='0.1.0')
-    data = Property(title="Data", default="{{ $.to_dict() }}")
+    data = Property(title="Data", default="{{ $ }}")
 
     def process_signals(self, signals):
         for signal in signals:
