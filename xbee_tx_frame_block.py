@@ -7,25 +7,22 @@ from .xbee_frame_base import XBeeFrameBase
 
 class XBeeTXFrame(XBeeFrameBase):
 
-    """Execute TX Command.
-
-    XBee sends the serialized version of each input signal to thie block. It is
-    sent to the configured "Distnation Address" of the XBee. That destination
-    XBee will receive that serialized signal. If that block is connected to nio
-    then the block will notify the signal.
+    """Generate TX command frame
 
     Parameters:
         dest_addr: 2 byte hex address of remote xbee to send AT command to.
             Default value when left blank is "FF FF" which sends a broadcast.
+        data: Data to send, default maximum is 100 bytes
+        frame_id: Hidden parameter to set frame_id
     """
 
-    version = VersionProperty(version='0.1.0')
+    version = VersionProperty(version='1.0.0')
     data = Property(title="Data", default="{{ $.to_dict() }}")
     dest_addr = Property(title='Destination Address \
                          (2 bytes hex, ex: "00 05")',
                          default='',
                          allow_none=True)
-    frame_id = Property(title='Frame options', 
+    frame_id = Property(title='Frame id', 
                         default="{{ $frame_id }}", 
                         hidden=True)
 

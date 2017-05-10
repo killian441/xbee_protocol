@@ -13,11 +13,11 @@ class XBeeParseFrame(XBeeFrameBase):
     individual frame components.
 
     Parameters:
-        data: An XBee frame, can either be with a start byte and checksum
-            or only the data packet. 
+        data: An XBee frame with a start byte and checksum
+            *TODO: allow only the data packet* 
     """
 
-    version = VersionProperty(version='0.1.0')
+    version = VersionProperty(version='1.0.0')
     data = Property(title="Data", default="{{ $ }}")
 
     def process_signals(self, signals):

@@ -7,19 +7,20 @@ from .xbee_frame_base import XBeeFrameBase
 
 class XBeeQueuedATFrame(XBeeFrameBase):
 
-    """ Execute AT commands
+    """ Generate Queued AT command frame
     Parameters:
         command: The command to execute, ex. 'D0', WR'
         parameter: The command parameter, ex. '05' for 'D0' command
            to set pin high
+        frame_id: Hidden parameter to set frame_id
     """
 
-    version = VersionProperty(version='0.1.0')
+    version = VersionProperty(version='1.0.0')
     command = Property(title='AT Command (ascii)',
                        default='ID')
     parameter = Property(title='Command Parameter (hex, ex: "05")',
                          default='')
-    frame_id = Property(title='Frame options', 
+    frame_id = Property(title='Frame id', 
                         default="{{ $frame_id }}", 
                         hidden=True)
 

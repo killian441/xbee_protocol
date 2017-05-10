@@ -7,7 +7,7 @@ from .xbee_frame_base import XBeeFrameBase
 
 class XBeeRemoteATFrame(XBeeFrameBase):
 
-    """Execute Remote AT commands.
+    """Generate Remote AT command frame
 
     Parameters:
         command: The command to execute, ex. 'D0', WR'
@@ -16,16 +16,17 @@ class XBeeRemoteATFrame(XBeeFrameBase):
         dest_addr: 2 or 8 byte address of remote xbee to send AT command to.
             must be 8 bytes when using digimesh.
             Default value when left blank is "FF FF" which sends a broadcast.
+        frame_id: Hidden parameter to set frame_id
     """
 
-    version = VersionProperty(version='0.1.0')
+    version = VersionProperty(version='1.0.0')
     command = Property(title='AT Command (ascii)', default='ID')
     parameter = Property(title='Command Parameter (hex, ex: "05")', default='')
     dest_addr = Property(title='Destination Address \
                          (2 or 8 bytes hex, ex: "00 05")',
                          default='',
                          allow_none=True)
-    frame_id = Property(title='Frame options', 
+    frame_id = Property(title='Frame id', 
                         default="{{ $frame_id }}", 
                         hidden=True)
 

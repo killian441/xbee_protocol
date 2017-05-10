@@ -3,6 +3,7 @@ import xbee
 from time import sleep
 from nio.block.base import Block
 from nio.properties import StringProperty, IntProperty, BoolProperty
+from nio.properties.version import VersionProperty
 from nio.util.threading.spawn import spawn
 from nio.util.discovery import not_discoverable
 
@@ -10,15 +11,14 @@ from nio.util.discovery import not_discoverable
 @not_discoverable
 class XBeeFrameBase(Block):
 
-    """ Read XBee over serial.
+    """ Generate or interpret XBee frames
 
     Parameters:
         escaped (bool): True uses API mode 2 
-        serial_port (str): COM/Serial port the XBee is connected to
-        baud_rate (int): BAUD rate to communicate with the serial port
         digimesh (bool): Use DigiMesh protocol rather than XBee (IEEE 802.15.4)
     """
 
+    version = VersionProperty(version='1.0.0')
     escaped = BoolProperty(title='Escaped characters? (API mode 2)',
                            default=True)
     digimesh = BoolProperty(title='DigiMesh',
